@@ -1,10 +1,11 @@
+//All the global variables...
+let emailList = []; //array to store the email images
 //global variables for user input
 let username; //name of the user
 let initialHypothesis, initialReasoning; //hypothesis/reasoning from round 1
 let updatedHypothesis, updatedReasoning; //hypothesis/reasoning from round 2
 let thirdHypothesis, thirdReasoning; //hypothesis/reasoning from round 3
 let finalHypothesis, finalReasoning; //hypothesis/reasoning from round 4
-
 //global variables for state tracking
 const states = {
     SETUP: 0,               //initial setup; ask for student's name
@@ -15,22 +16,36 @@ const states = {
     END: 5                  //save user input & unlocked emails to PDF for assignment submission
 };
 let state = states.SETUP; //tracks where we are in the lab
-
 //global variables for input elements
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
 let hypoLabel, reasonLabel; //instructional text for hypothesis & reasoning boxes
 let submitButton; //button used to submit hypothesis & reasoning
 
+let test;
+
 //load assets
 function preload()
 {
     //img_name = loadImage("assets/imgName.extension");
+    //thank you PowerPoint for exporting with such nice filenames
+    // for (let i = 1; i < 17; i++)
+    // {
+    //     //
+    // }
+    test = loadImage("assets/Slide3.PNG");
 }
 
 //perform initial page setup
 function setup()
 {
     //populate the email database
+    for(let i = 0; i < 5; i++)
+    {
+        //new Email(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH)
+        emailList.push(new Email(test, 5+(205*i), 5, 200, 150, 215, 10, 600, 450));
+        emailList.push(new Email(test, 5+(205*i), 160, 200, 150, 215, 10, 600, 450));
+        emailList.push(new Email(test, 5+(205*i), 315, 200, 150, 215, 10, 600, 450));
+    }
     /* TODO */
 
     //create the username box
@@ -51,17 +66,36 @@ function setup()
 
 function draw()
 {
-    //If we're still in the setup state, 
+    //If we're still in the setup state, abort (canvas isn't spawned yet)
     if (state == states.SETUP)
     {
         return;
     }
 
-    if (hypoInputBox)
-    {
-        //console.log(hypoInputBox.value());
-    }
     background(128);
+    //console.log("X: " + mouseX + ", Y: " + mouseY);
+    for (let i = 0; i < emailList.length; i++)
+    {
+        let email = emailList[i];
+        email.draw();
+        if (email.zoomMode)
+        {
+            break;
+        }
+    }
+}
+
+function doubleClicked()
+{
+    //emailList[0].zoomMode = !emailList[0].zoomMode;
+    for (let i = 0; i < emailList.length; i++)
+    {
+        if(emailList[i].beginDrag())
+        {
+            console.log("FOUND");
+            break;
+        }
+    }
 }
 
 
@@ -92,7 +126,7 @@ function enterName(name, warningText)
             state = states.INITIAL_HYPOTHESIS;
             //create the email menu canvas
             spawnLabel("These are your currently unlocked emails. Click on an image to view it full-size; click again to return to the normal menu view.");
-            let canvas = createCanvas(800,400);
+            let canvas = createCanvas(1030,470);
             canvas.parent("container");
             
             //create the input boxes for hypothesis & reasoning
