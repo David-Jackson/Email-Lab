@@ -1,5 +1,7 @@
 //All the global variables...
-let emailList = []; //array to store the email images
+let images = []; //array to store email images
+let emailPool = []; //array to store locked ("in the envelope") emails to draw from
+let unlockedEmails = []; //array to store unlocked emails
 //global variables for user input
 let username; //name of the user
 let initialHypothesis, initialReasoning; //hypothesis/reasoning from round 1
@@ -28,24 +30,29 @@ function preload()
 {
     //img_name = loadImage("assets/imgName.extension");
     //thank you PowerPoint for exporting with such nice filenames
-    // for (let i = 1; i < 17; i++)
-    // {
-    //     //
-    // }
-    test = loadImage("assets/Slide3.PNG");
+    for (let i = 1; i < 17; i++)
+    {
+        images.push(loadImage("assets/Slide" + i + ".PNG"));
+    }
+    //test = loadImage("assets/Slide3.PNG");
 }
 
 //perform initial page setup
 function setup()
 {
     //populate the email database
-    for(let i = 0; i < 5; i++)
+    for (let i = 0; i < 16; i++)
     {
-        //new Email(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH)
-        emailList.push(new Email(test, 5+(205*i), 5, 200, 150, 215, 10, 600, 450));
-        emailList.push(new Email(test, 5+(205*i), 160, 200, 150, 215, 10, 600, 450));
-        emailList.push(new Email(test, 5+(205*i), 315, 200, 150, 215, 10, 600, 450));
+        emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450));
     }
+    // for(let i = 0; i < 5; i++)
+    // {
+    //     //new Email(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH)
+    //     // unlockedEmails.push(new Email(test, 5+(205*i), 5, 200, 150, 215, 10, 600, 450));
+    //     // unlockedEmails.push(new Email(test, 5+(205*i), 160, 200, 150, 215, 10, 600, 450));
+    //     // unlockedEmails.push(new Email(test, 5+(205*i), 315, 200, 150, 215, 10, 600, 450));
+    //     //chooseEmails(4);
+    // }
     /* TODO */
 
     //create the username box
@@ -74,9 +81,9 @@ function draw()
 
     background(128);
     //console.log("X: " + mouseX + ", Y: " + mouseY);
-    for (let i = 0; i < emailList.length; i++)
+    for (let i = 0; i < unlockedEmails.length; i++)
     {
-        let email = emailList[i];
+        let email = unlockedEmails[i];
         email.draw();
         if (email.zoomMode)
         {
@@ -85,16 +92,57 @@ function draw()
     }
 }
 
+//toggle large view on clicked email
 function doubleClicked()
 {
-    //emailList[0].zoomMode = !emailList[0].zoomMode;
-    for (let i = 0; i < emailList.length; i++)
+    //if we're still in setup, abort - menu isn't properly set up
+    if (state == states.SETUP)
     {
-        if(emailList[i].beginDrag())
+        return;
+    }
+    unlockedEmails[0].zoomMode = !unlockedEmails[0].zoomMode;
+}
+
+//begin dragging a clicked email
+function mousePressed()
+{
+    //if we're still in setup, abort - menu isn't properly set up
+    if (state == states.SETUP)
+    {
+        return;
+    }
+    for (let i = 0; i < unlockedEmails.length; i++)
+    {
+        //Email.beginDrag() not only checks if the email was clicked,
+        //but will also perform most of the drag setup.
+        if (unlockedEmails[i].beginDrag())
         {
             console.log("FOUND");
+            //To make sure that the email is rendered over all others, move it to the end of unlockedEmails
+            //(since emails are drawn in order of appearance, so 1st is on the bottom)
+            //Credit for this algorithm goes to https://stackoverflow.com/questions/24909371/move-item-in-array-to-last-position
+            unlockedEmails.push(unlockedEmails.splice(i, 1)[0]);
+
+            //since we can only click one email, we don't need to keep looking
             break;
         }
+    }
+}
+
+//end dragging a clicked email
+function mouseReleased()
+{
+    //if we're still in setup, abort - menu isn't properly set up
+    if (state == states.SETUP)
+    {
+        return;
+    }
+    //because we move any dragging emails to the end of unlockedEmails, we can assume
+    //that that is the only position we'd need to check to turn off a dragged email.
+    if (unlockedEmails[unlockedEmails.length - 1].dragging)
+    {
+        //tell the dragged email where to snap to
+        unlockedEmails[unlockedEmails.length - 1].endDrag();
     }
 }
 
@@ -140,6 +188,9 @@ function enterName(name, warningText)
             submitButton = createButton("submit");
             submitButton.parent("container");
             submitButton.mousePressed(submitHypothesis);
+
+            //unlock the 1st four emails
+            chooseEmails(4);
         }
     }
 }
@@ -290,5 +341,24 @@ function checkHypothesis(previousHypothesis, previousReasoning)
     else
     {
         return true;
+    }
+}
+
+//Draws a specified # of emails from the available pool and adds them to emailList.
+//Args: the # of emails to choose.
+function chooseEmails(count)
+{
+    for(let i = 0; i < count; i++)
+    {
+        //pick the email
+        let rand = floor(random(0,emailPool.length));
+        let chosenEmail = emailPool.splice(rand,1)[0];
+
+        //put the email in the correct position
+        let x = 5+((205*unlockedEmails.length)%820);
+        chosenEmail.setMenuPosition(x,5,true);
+
+        //add the email to unlockedEmails
+        unlockedEmails.push(chosenEmail);
     }
 }

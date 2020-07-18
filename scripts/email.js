@@ -11,6 +11,8 @@ class Email
         //dimension & position of the email in zoom view
         this.zoomPos = {x: zoomX, y: zoomY};
         this.zoomScale = {width: zoomW, height: zoomH};
+        //position to return to in case (for whatever reason) a drag fails & we need to return to where we were @ drag start
+        this.returnPos = {x: menuX, y: menuY};
 
         //state tracking
         this.zoomMode = false; //controls whether we're zoomed in or out
@@ -68,11 +70,35 @@ class Email
     }
 
     //Return to the menu state once drag ends.
-    //Args: the (x,y) position to snap to
+    //Args: the (x,y) position to snap to.
+    //If no position is specified, returns to its original post
     endDrag(x,y)
     {
         this.dragging = false;
+        if (arguments.length < 2)
+        {
+            console.log("Snapping back to start");
+            this.menuPos.x = this.returnPos.x;
+            this.menuPos.y = this.returnPos.y;
+        }
+        else
+        {
+            this.menuPos.x = x;
+            this.menuPos.y = y;
+        }
+    }
+
+    //helper method to set the object's menu position.
+    //Args: (x,y) = coords to set the menu to; doReturnPos = whether to also override returnPos with the new coords (boolean)
+    setMenuPosition(x,y,doReturnPos)
+    {
         this.menuPos.x = x;
         this.menuPos.y = y;
+        
+        if(doReturnPos)
+        {
+            this.returnPos.x = x;
+            this.returnPos.y = y;
+        }
     }
 }
