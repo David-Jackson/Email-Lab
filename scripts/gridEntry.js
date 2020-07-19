@@ -4,7 +4,12 @@ class GridEntry
 {
     constructor(x,y,email)
     {
-        this.position = {x: x, y:y}; //"worldspace" coords corresponding to this spot in the grid
-        this.email = email; //whatever email is stored at this position. Set to null if empty.
+        //"worldspace" coords corresponding to this spot in the grid
+        this.position = {x: x, y:y};
+        //whatever email is stored at this position. Set to null if empty.
+        this.email = email; 
+        //Whether to treat this space as empty during shifting calculations.
+        //Primarily intended to denote the original space occupied by a menu item currently being dragged.
+        this.treatAsEmpty = false;
     }
 }

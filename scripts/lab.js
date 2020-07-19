@@ -18,6 +18,7 @@ const states = {
     END: 5                  //save user input & unlocked emails to PDF for assignment submission
 };
 let state = states.SETUP; //tracks where we are in the lab
+let dragStartPos; //if we're dragging an email around, this stores where it used to be
 let doDragHighlighting = true; //whether to highlight the spot the student is going to drop an email into
 //global variables for input elements
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
@@ -123,6 +124,10 @@ function mousePressed()
             //(since emails are drawn in order of appearance, so 1st is on the bottom)
             //Credit for this algorithm goes to https://stackoverflow.com/questions/24909371/move-item-in-array-to-last-position
             unlockedEmails.push(unlockedEmails.splice(i, 1)[0]);
+            //tell the alignment grid that it can treat the dragged email's former spot as empty
+            //if/when it tries to shift emails around when we drop it
+            dragStartPos = alignGrid.worldToGridSpaceCoords(mouseX, mouseY); //which position should we adjust?
+            alignGrid.grid[dragStartPos.r][dragStartPos.c].treatAsEmpty = true;
 
             //since we can only click one email, we don't need to keep looking
             break;
@@ -145,6 +150,14 @@ function mouseReleased()
     {
         //figure out which grid position to go to
         let tgtGridSpot = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
+        //sanity check - verify that tgtGridSpot is a location within the grid,
+        //and if not send us back to our original position
+        if (!alignGrid.isValidCoords(tgtGridSpot.r, tgtGridSpot.c)) //invalid coords
+        {
+            draggedEmail.endDrag();
+            //now that drag is over, tell the grid it can no longer treat the dragged email's original position as empty
+            alignGrid[dragStartPos.r][dragStartPos.c].treatAsEmpty = false;
+        }
         //clear out that spot
         let spotClear = alignGrid.shiftEntry(tgtGridSpot.r, tgtGridSpot.c);
         console.log(spotClear);
@@ -167,6 +180,9 @@ function mouseReleased()
             //return to where we were at the start of the drag
             draggedEmail.endDrag();
         }
+        //now that drag is over, tell the grid it can no longer treat the dragged email's original position as empty
+        //(regardless of whether or not we actually dragged it to a new position)
+        alignGrid.grid[dragStartPos.r][dragStartPos.c].treatAsEmpty = false;
     }
 }
 

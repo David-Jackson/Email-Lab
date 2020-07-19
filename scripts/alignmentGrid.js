@@ -44,13 +44,34 @@ class AlignmentGrid
         return this.grid[r][c].position;
     }
 
-    //returns whether a given position is unoccupied
-    isOpen(r,c)
+    //Checks whether a given set of grid coords is valid (within the grid)
+    isValidCoords(r,c)
     {
-        let t = this.grid[r][c].email;
-        console.log(r + ", " + c + ": ");
-        console.log(t);
-        return (this.grid[r][c].email == null);
+        let temp = ((r >= 0) && (r < this.grid.length)
+                    && (c >= 0) && (c < this.grid[0].length));
+        return temp;
+    }
+
+    //Returns whether a given position is unoccupied.
+    //Args:
+    //  r,c         (integers) the (r,c) position to test
+    //  strictMode  (bool, optional) whether or not to allow "tentatively" empty slots
+    //              (i.e. those with the treatAsEmpty flag) or only "truly empty" slots
+    //              (i.e. only slots with a null email in them)
+    isOpen(r,c,strictMode)
+    {
+        let tgtContents = this.grid[r][c].email; //contents of the specified position
+        //console.log(r + ", " + c + ": ");
+        //console.log(tgtContents);
+        if (strictMode)
+        {
+            return (tgtContents == null);
+        }
+        else
+        {
+            return((tgtContents == null) || this.grid[r][c].treatAsEmpty);
+        }
+        //
     }
 
     //Finds the first open spot on the grid, searching from left to right, top to bottom.
