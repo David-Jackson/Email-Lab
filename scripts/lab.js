@@ -23,7 +23,7 @@ let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
 let hypoLabel, reasonLabel; //instructional text for hypothesis & reasoning boxes
 let submitButton; //button used to submit hypothesis & reasoning
 
-let test;
+let alignGrid; //AlignmentGrid object used in the grid-based menu system
 
 //load assets
 function preload()
@@ -34,7 +34,6 @@ function preload()
     {
         images.push(loadImage("assets/Slide" + i + ".PNG"));
     }
-    //test = loadImage("assets/Slide3.PNG");
 }
 
 //perform initial page setup
@@ -45,16 +44,10 @@ function setup()
     {
         emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450));
     }
-    // for(let i = 0; i < 5; i++)
-    // {
-    //     //new Email(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH)
-    //     // unlockedEmails.push(new Email(test, 5+(205*i), 5, 200, 150, 215, 10, 600, 450));
-    //     // unlockedEmails.push(new Email(test, 5+(205*i), 160, 200, 150, 215, 10, 600, 450));
-    //     // unlockedEmails.push(new Email(test, 5+(205*i), 315, 200, 150, 215, 10, 600, 450));
-    //     //chooseEmails(4);
-    // }
-    /* TODO */
 
+    //set up alignGrid
+    alignGrid = new AlignmentGrid(3,5);
+    
     //create the username box
     let nameLabel = spawnLabel("Enter your name: ");
     let nameInput = createInput();
@@ -100,7 +93,8 @@ function doubleClicked()
     {
         return;
     }
-    unlockedEmails[0].zoomMode = !unlockedEmails[0].zoomMode;
+    //unlockedEmails[0].zoomMode = !unlockedEmails[0].zoomMode;
+    chooseEmails(1);
 }
 
 //begin dragging a clicked email
@@ -139,10 +133,33 @@ function mouseReleased()
     }
     //because we move any dragging emails to the end of unlockedEmails, we can assume
     //that that is the only position we'd need to check to turn off a dragged email.
-    if (unlockedEmails[unlockedEmails.length - 1].dragging)
+    let draggedEmail = unlockedEmails[unlockedEmails.length - 1];
+    if (draggedEmail.dragging) //make sure that draggedEmail was, in fact, being dragged
     {
-        //tell the dragged email where to snap to
-        unlockedEmails[unlockedEmails.length - 1].endDrag();
+        //figure out which grid position to go to
+        let tgtGridSpot = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
+        //clear out that spot
+        let spotClear = alignGrid.shiftEntry(tgtGridSpot.r, tgtGridSpot.c);
+        console.log(spotClear);
+        if(spotClear) //shift successful
+        {
+            //put ourselves in the new position
+            let tgtEntry = alignGrid.grid[tgtGridSpot.r][tgtGridSpot.c]; //get the corresponding gridEntry object
+            tgtEntry.email = draggedEmail; //store ourselves in tgtEntry
+            //remove ourselves from our old position
+            let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
+            let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
+            oldEntry.email = null;
+            
+            //finish up
+            draggedEmail.setMenuPosition(tgtEntry.position.x, tgtEntry.position.y, true); //update our position
+            draggedEmail.endDrag();
+        }
+        else //shift failed - spot is occupied or otherwise invalid
+        {
+            //return to where we were at the start of the drag
+            draggedEmail.endDrag();
+        }
     }
 }
 
@@ -355,9 +372,11 @@ function chooseEmails(count)
         let chosenEmail = emailPool.splice(rand,1)[0];
 
         //put the email in the correct position
-        let x = 5+((205*unlockedEmails.length)%820);
-        chosenEmail.setMenuPosition(x,5,true);
-
+        let tgtSlot = alignGrid.getFirstOpen(); //find 1st open slot
+        let tgtEntry = alignGrid.grid[tgtSlot.r][tgtSlot.c]; //get the corresponding gridEntry object
+        tgtEntry.email = chosenEmail; //store ourselves in tgtEntry
+        chosenEmail.setMenuPosition(tgtEntry.position.x, tgtEntry.position.y, true);
+        
         //add the email to unlockedEmails
         unlockedEmails.push(chosenEmail);
     }

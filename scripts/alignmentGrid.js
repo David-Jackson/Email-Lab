@@ -38,14 +38,18 @@ class AlignmentGrid
     //NOTE: assumes you want the location of the top-left corner of the grid position.
     gridToWorldSpaceCoords(r,c)
     {
-        let worldX = 5 + (205*c);
-        let worldY = 5 + (155*r);
-        return {x: worldX, y: worldY};
+        //let worldX = 5 + (205*c);
+        //let worldY = 5 + (155*r);
+        //return {x: worldX, y: worldY};
+        return this.grid[r][c].position;
     }
 
     //returns whether a given position is unoccupied
     isOpen(r,c)
     {
+        let t = this.grid[r][c].email;
+        console.log(r + ", " + c + ": ");
+        console.log(t);
         return (this.grid[r][c].email == null);
     }
 
@@ -127,14 +131,17 @@ class AlignmentGrid
     {
         if (this.isOpen(r,c)) //quick check - no need to shift if we're empty
         {
+            console.log("Dropped into empty");
             return true;
         }
         else if (this.performShift(r,c,true)) //first, attempt a right shift
         {
+            console.log("Right shift worked");
             return true; //right shift worked - signal success
         }
         else if (this.performShift(r,c,false)) //right-shift failed - attempt left shift
         {
+            console.log("Left shift worked");
             return true; //left-shift worked - signal success
         }
         else //cannot shift - signal failure
@@ -168,15 +175,23 @@ class AlignmentGrid
         }
         else if (this.isOpen(tgtPos.r, tgtPos.c)) //base case #2 - shifting into empty slot
         {
+            //update my email's position to match its new position
+            let newPos = this.grid[tgtPos.r][tgtPos.c].position;
+            let myEmail = this.grid[r][c].email;
+            console.log(myEmail);
+            myEmail.setMenuPosition(newPos.x, newPos.y, true);
             //give my email to my neighbor
-            this.grid[tgtPos.r][tgtPos.c].email = this.grid[r][c].email;
+            this.grid[tgtPos.r][tgtPos.c].email = myEmail;
             this.grid[r][c].email = null; //I gave up my email, so I'm empty now
             return true; //indicate success
         }
-        else if (this.shiftRight(tgtPos.r, tgtPos.c)) //shifting into occupied slot - attempt a "push chain"
+        else if (this.performShift(tgtPos.r, tgtPos.c, goRight)) //shifting into occupied slot - attempt a "push chain"
         {
             //if we're here, the push chain worked - we can treat tgtPos as a regular empty space now
-            this.grid[tgtPos.r][tgtPos.c].email = this.grid[r][c].email;
+            let newPos = this.grid[tgtPos.r][tgtPos.c].position;
+            let myEmail = this.grid[r][c].email;
+            myEmail.setMenuPosition(newPos.x, newPos.y, true);
+            this.grid[tgtPos.r][tgtPos.c].email = myEmail;
             this.grid[r][c].email = null;
             return true;
         }
