@@ -18,6 +18,7 @@ const states = {
     END: 5                  //save user input & unlocked emails to PDF for assignment submission
 };
 let state = states.SETUP; //tracks where we are in the lab
+let doDragHighlighting = true; //whether to highlight the spot the student is going to drop an email into
 //global variables for input elements
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
 let hypoLabel, reasonLabel; //instructional text for hypothesis & reasoning boxes
@@ -72,8 +73,14 @@ function draw()
         return;
     }
 
+    //gray background
     background(128);
-    //console.log("X: " + mouseX + ", Y: " + mouseY);
+    //if the student is currently dragging an email, highlight the position they'll drop it into
+    if(doDragHighlighting)
+    {
+        alignGrid.drawHighlight(mouseX, mouseY);
+    }
+    //draw the emails
     for (let i = 0; i < unlockedEmails.length; i++)
     {
         let email = unlockedEmails[i];

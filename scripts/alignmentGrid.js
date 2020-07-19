@@ -200,4 +200,21 @@ class AlignmentGrid
             return false;
         }
     }
+
+    //draws a highlight on the currently moused-over grid box
+    drawHighlight(x,y)
+    {
+        //figure out which box is highlighted
+        let tgtBox = this.worldToGridSpaceCoords(x,y);
+        //abort early if we have an invalid position, e.g. the mouse is outside of the menu area
+        if ((tgtBox.r < 0) || (tgtBox.r >= this.grid.length) || (tgtBox.c < 0) || (tgtBox.c >= this.grid[0].length))
+        {
+            return;
+        }
+        //use the box's coords to find where in worldspace to draw the box...
+        let drawPos = this.grid[tgtBox.r][tgtBox.c].position;
+        //draw the highlight box
+        fill(0,0,255); //blue color
+        rect(drawPos.x - 5, drawPos.y - 5, 210, 160);
+    }
 }
