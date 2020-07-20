@@ -283,7 +283,9 @@ function enterName(name, warningText)
             console.log("Time to begin lab!");
             state = states.INITIAL_HYPOTHESIS;
             //create the email menu canvas
-            spawnLabel("These are your currently unlocked emails. Click on an image to view it full-size; click again to return to the normal menu view.");
+            spawnLabel("These are your currently unlocked emails."
+                + "<br>Double-lick on an image to view it full-size; double-click again to return to the normal menu view."
+                + "<br>Click & drag an email to move it to a different menu position, shifting any emails in the way.");
             let canvas = createCanvas(1030,470);
             canvas.parent("container");
             
