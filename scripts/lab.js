@@ -119,7 +119,7 @@ function mousePressed()
         //but will also perform most of the drag setup.
         if (unlockedEmails[i].beginDrag())
         {
-            console.log("FOUND");
+            console.log("beginning drag...");
             //To make sure that the email is rendered over all others, move it to the end of unlockedEmails
             //(since emails are drawn in order of appearance, so 1st is on the bottom)
             //Credit for this algorithm goes to https://stackoverflow.com/questions/24909371/move-item-in-array-to-last-position
@@ -160,7 +160,6 @@ function mouseReleased()
         }
         //clear out that spot
         let spotClear = alignGrid.shiftEntry(tgtGridSpot.r, tgtGridSpot.c);
-        console.log(spotClear);
         if(spotClear) //shift successful
         {
             //put ourselves in the new position
@@ -277,7 +276,7 @@ function submitHypothesis()
                 console.log(initialHypothesis);
                 console.log(initialReasoning);
                 //unlock 4 more emails
-                /*TODO*/
+                chooseEmails(4);
 
                 //update the hypothesis/reasoning labels w/ the prompt for the 2nd hypothesis
                 hypoLabel.html("Using the new data from the 4 new emails, formulate a second tentative hypothesis that explains the storyline.");
@@ -297,7 +296,7 @@ function submitHypothesis()
                 console.log(updatedHypothesis);
                 console.log(updatedReasoning);
                 //unlock 2 more emails
-                /*TODO*/
+                chooseEmails(2);
 
                 //update the hypothesis/reasoning labels w/ the prompt for the 3rd hypothesis
                 hypoLabel.html("Using the new data from the 2 new emails, formulate a third tentative hypothesis that explains the storyline.");
