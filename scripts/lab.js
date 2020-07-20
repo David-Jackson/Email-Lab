@@ -18,6 +18,7 @@ const states = {
     END: 5                  //save user input & unlocked emails to PDF for assignment submission
 };
 let state = states.SETUP; //tracks where we are in the lab
+let inZoomView = false; //whether or not we're currently zoomed in on an email
 let dragStartPos; //if we're dragging an email around, this stores where it used to be
 let doDragHighlighting = true; //whether to highlight the spot the student is going to drop an email into
 //global variables for input elements
@@ -101,8 +102,30 @@ function doubleClicked()
     {
         return;
     }
+
+    //if we're in zoom view, get out of it
+    if (inZoomView)
+    {
+        //
+    }
+    else //if we're not zoomed in, become so
+    {
+        inZoomView = true;
+        //figure out which email we clicked on
+        let clickedSpot = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
+        //verify that we clicked within the menu, & abort if not
+        if (!alignGrid.isValidCoords(clickedSpot.r, clickedSpot.c))
+        {
+            return;
+        }
+        console.log("Choosing spot " + clickedSpot.r + ", " + clickedSpot.c);
+        console.log(alignGrid);
+        //get the email at that position and tell it to enter zoom mode
+        alignGrid.grid[clickedSpot.r][clickedSpot.c].email.zoomMode = true;
+    }
+
     //unlockedEmails[0].zoomMode = !unlockedEmails[0].zoomMode;
-    chooseEmails(1);
+    //chooseEmails(1); //debug utility for testing email spawning
 }
 
 //begin dragging a clicked email
@@ -162,17 +185,19 @@ function mouseReleased()
         let spotClear = alignGrid.shiftEntry(tgtGridSpot.r, tgtGridSpot.c);
         if(spotClear) //shift successful
         {
-            //put ourselves in the new position
-            let tgtEntry = alignGrid.grid[tgtGridSpot.r][tgtGridSpot.c]; //get the corresponding gridEntry object
-            tgtEntry.email = draggedEmail; //store ourselves in tgtEntry
             //remove ourselves from our old position
             let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
             let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
             oldEntry.email = null;
+            //put ourselves in the new position
+            let tgtEntry = alignGrid.grid[tgtGridSpot.r][tgtGridSpot.c]; //get the corresponding gridEntry object
+            tgtEntry.email = draggedEmail; //store ourselves in tgtEntry
             
             //finish up
             draggedEmail.setMenuPosition(tgtEntry.position.x, tgtEntry.position.y, true); //update our position
             draggedEmail.endDrag();
+            console.log("UP");
+            console.log(alignGrid);
         }
         else //shift failed - spot is occupied or otherwise invalid
         {
@@ -402,4 +427,5 @@ function chooseEmails(count)
         //add the email to unlockedEmails
         unlockedEmails.push(chosenEmail);
     }
+    console.log(alignGrid);
 }
