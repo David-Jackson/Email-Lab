@@ -19,7 +19,9 @@ const states = {
 };
 let state = states.SETUP; //tracks where we are in the lab
 let inZoomView = false; //whether or not we're currently zoomed in on an email
+let zoomedPos; //stores the (r,c) position of the zoomed-in email in the alignment grid
 let dragStartPos; //if we're dragging an email around, this stores where it used to be
+let passedOrigin = false; //flag used to identify whether a push chain overrode the dragged email's original position. Part of a (hopefully) temporary workaround (see notes on PerformShift() in alignmentGrid.js).
 let doDragHighlighting = true; //whether to highlight the spot the student is going to drop an email into
 //global variables for input elements
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
@@ -106,22 +108,26 @@ function doubleClicked()
     //if we're in zoom view, get out of it
     if (inZoomView)
     {
-        //
+        console.log("UNZOOM");
+        console.log(zoomedPos);
+        console.log(alignGrid);
+        alignGrid.grid[zoomedPos.r][zoomedPos.c].email.zoomMode = false;
+        inZoomView = false;
     }
     else //if we're not zoomed in, become so
     {
         inZoomView = true;
         //figure out which email we clicked on
-        let clickedSpot = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
+        zoomedPos = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
         //verify that we clicked within the menu, & abort if not
-        if (!alignGrid.isValidCoords(clickedSpot.r, clickedSpot.c))
+        if (!alignGrid.isValidCoords(zoomedPos.r, zoomedPos.c))
         {
             return;
         }
-        console.log("Choosing spot " + clickedSpot.r + ", " + clickedSpot.c);
+        console.log("Choosing spot " + zoomedPos.r + ", " + zoomedPos.c);
         console.log(alignGrid);
         //get the email at that position and tell it to enter zoom mode
-        alignGrid.grid[clickedSpot.r][clickedSpot.c].email.zoomMode = true;
+        alignGrid.grid[zoomedPos.r][zoomedPos.c].email.zoomMode = true;
     }
 
     //unlockedEmails[0].zoomMode = !unlockedEmails[0].zoomMode;
@@ -185,10 +191,19 @@ function mouseReleased()
         let spotClear = alignGrid.shiftEntry(tgtGridSpot.r, tgtGridSpot.c);
         if(spotClear) //shift successful
         {
+            //clear out our old position, but ONLY if it hasn't been replaced by an email we pushed during the move
+            if (!passedOrigin)
+            {
+                let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
+                let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
+                oldEntry.email = null;
+                //console.log("YOU WILL HAVE A PROBLEM");
+                passedOrigin = false; //reset the passedOrigin flag for next time
+            }
             //remove ourselves from our old position
-            let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
-            let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
-            oldEntry.email = null;
+            // let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
+            // let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
+            // oldEntry.email = null;
             //put ourselves in the new position
             let tgtEntry = alignGrid.grid[tgtGridSpot.r][tgtGridSpot.c]; //get the corresponding gridEntry object
             tgtEntry.email = draggedEmail; //store ourselves in tgtEntry

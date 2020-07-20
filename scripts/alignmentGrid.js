@@ -174,8 +174,12 @@ class AlignmentGrid
     //Helper method for shiftEntry().
     //Attempts to shift the specified entry in the specified direction.
     //Args: the (r,c) coords of the entry to shift,
-    //and an indicator of the direction to shift in (true for right, false for left)
-    //Returns true on success, false on failure
+    //  and an indicator of the direction to shift in (true for right, false for left)
+    //Returns true on success, false on failure.
+    //NOTE: if a push chain intersects the original position of the moved email
+    //  (i.e. a slot with the treatAsEmpty flag set), it will set the global passedOrigin flag.
+    //  This behavior is a workaround, and will most likely be replaced with a better system
+    //  during the first code cleanup.
     performShift(r,c,goRight)
     {
         let tgtPos; //where we want to go
@@ -196,6 +200,13 @@ class AlignmentGrid
         }
         else if (this.isOpen(tgtPos.r, tgtPos.c)) //base case #2 - shifting into empty slot
         {
+            //check if the slot is only empty because it was the original position of the dragged email,
+            //and if so set the global passedOrigin flag so we know not to do the usual "clear out the original position" behavior
+            //(since instead of the origin holding an empty position it now holds a pushed email)
+            if (this.grid[tgtPos.r][tgtPos.c].treatAsEmpty)
+            {
+                passedOrigin = true;
+            }
             //update my email's position to match its new position
             let newPos = this.grid[tgtPos.r][tgtPos.c].position;
             let myEmail = this.grid[r][c].email;
