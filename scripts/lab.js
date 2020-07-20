@@ -111,12 +111,21 @@ function doubleClicked()
         console.log("UNZOOM");
         console.log(zoomedPos);
         console.log(alignGrid);
+        //Make sure zoomedPos doesn't point to an empty square.
+        //This should never happen (zooming in verifies the zoomed position,
+        //and editing the menu should be disabled during zoom),
+        //but if it somehow happens scream that we've got a problem.
+        if (alignGrid.isOpen(zoomedPos.r, zoomedPos.c, true))
+        {
+            console.log("WARNING! zoomedPos points to an empty square!");
+            console.log("This will prevent returning to normal view!");
+            return;
+        }
         alignGrid.grid[zoomedPos.r][zoomedPos.c].email.zoomMode = false;
         inZoomView = false;
     }
     else //if we're not zoomed in, become so
     {
-        inZoomView = true;
         //figure out which email we clicked on
         zoomedPos = alignGrid.worldToGridSpaceCoords(mouseX, mouseY);
         //verify that we clicked within the menu, & abort if not
@@ -124,6 +133,12 @@ function doubleClicked()
         {
             return;
         }
+        //also abort if we clicked on an empty square
+        else if (alignGrid.isOpen(zoomedPos.r, zoomedPos.c, true))
+        {
+            return;
+        }
+        inZoomView = true;
         console.log("Choosing spot " + zoomedPos.r + ", " + zoomedPos.c);
         console.log(alignGrid);
         //get the email at that position and tell it to enter zoom mode
@@ -139,6 +154,11 @@ function mousePressed()
 {
     //if we're still in setup, abort - menu isn't properly set up
     if (state == states.SETUP)
+    {
+        return;
+    }
+    //also abort if we're in zoomed-in view - we SHOUlD NOT edit the menu
+    else if (inZoomView)
     {
         return;
     }
