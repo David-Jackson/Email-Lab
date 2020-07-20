@@ -1,6 +1,6 @@
 class Email
 {
-    constructor(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH)
+    constructor(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH,name)
     {
         //what email image to use as its sprite
         this.image = img;
@@ -19,6 +19,7 @@ class Email
         this.dragging = false; //whether we're being dragged
         //used to maintain the same position relative to the initial mouse click when dragging
         this.dragOffset = {x: 0, y: 0};
+        this.name = name;
     }
 
     //renders the email

@@ -30,6 +30,8 @@ let submitButton; //button used to submit hypothesis & reasoning
 
 let alignGrid; //AlignmentGrid object used in the grid-based menu system
 
+let debugMode = true; //whether to run in debug mode
+
 //load assets
 function preload()
 {
@@ -37,7 +39,14 @@ function preload()
     //thank you PowerPoint for exporting with such nice filenames
     for (let i = 1; i < 17; i++)
     {
-        images.push(loadImage("assets/Slide" + i + ".PNG"));
+        if (debugMode)
+        {
+            images.push(loadImage("debugAssets/Slide" + i + ".PNG"));
+        }
+        else
+        {
+            images.push(loadImage("assets/Slide" + i + ".PNG"));
+        }
     }
 }
 
@@ -47,7 +56,8 @@ function setup()
     //populate the email database
     for (let i = 0; i < 16; i++)
     {
-        emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450));
+        let name = "email" + (i+1);
+        emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450,name));
     }
 
     //set up alignGrid
@@ -214,11 +224,11 @@ function mouseReleased()
             //clear out our old position, but ONLY if it hasn't been replaced by an email we pushed during the move
             if (!passedOrigin)
             {
+                console.log("CHOSE TO CLEAR ORIGIN");
                 let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
                 let oldEntry = alignGrid.grid[oldSpot.r][oldSpot.c];
                 oldEntry.email = null;
                 //console.log("YOU WILL HAVE A PROBLEM");
-                passedOrigin = false; //reset the passedOrigin flag for next time
             }
             //remove ourselves from our old position
             // let oldSpot = alignGrid.worldToGridSpaceCoords(draggedEmail.menuPos.x, draggedEmail.menuPos.y);
@@ -233,6 +243,7 @@ function mouseReleased()
             draggedEmail.endDrag();
             console.log("UP");
             console.log(alignGrid);
+            passedOrigin = false; //make sure we ALWAYS clear passedOrigin to prevent a flag from a previous cycle affecting the current one
         }
         else //shift failed - spot is occupied or otherwise invalid
         {
