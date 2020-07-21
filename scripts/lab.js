@@ -56,7 +56,7 @@ function setup()
     //populate the email database
     for (let i = 0; i < 16; i++)
     {
-        let name = "email" + (i+1);
+        let name = "email_" + (i+1);
         emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450,name));
     }
 
@@ -414,7 +414,7 @@ function submitHypothesis()
                 console.log(finalReasoning);
                 
                 //save to PDF
-                /*TODO*/
+                saveSubmission();
 
                 //move to next state
                 state = states.END;
@@ -476,4 +476,51 @@ function chooseEmails(count)
         unlockedEmails.push(chosenEmail);
     }
     console.log(alignGrid);
+}
+
+//Saves the lab for student submission.
+//Currently saves to .txt; will eventually be converted to save to PDF.
+function saveSubmission()
+{
+    //saveText stores the output text, letting us build it as we go.
+    let saveText = [];
+
+    //save the student's name
+    saveText.push("STUDENT NAME: " + username);
+    //visual distinction between sections
+    saveText.push("-----------------------------------------");
+    //save a list of the emails the student had access to
+    saveText.push("Here are the emails the student used:");
+    for (let i = 0; i < unlockedEmails.length; i++)
+    {
+        saveText.push(unlockedEmails[i].name);
+    }
+    saveText.push("-----------------------------------------");
+    //save their initial hypothesis/reasoning
+    saveText.push("INITIAL HYPOTHESIS:");
+    saveText.push(initialHypothesis);
+    saveText.push("\nINITIAL REASONING:");
+    saveText.push(initialReasoning);
+    saveText.push("-----------------------------------------");
+    //save their second hypothesis/reasoning
+    saveText.push("SECOND HYPOTHESIS:");
+    saveText.push(updatedHypothesis);
+    saveText.push("\nSECOND REASONING:");
+    saveText.push(updatedReasoning);
+    saveText.push("-----------------------------------------");
+    //save their third hypothesis/reasoning
+    saveText.push("THIRD HYPOTHESIS:");
+    saveText.push(thirdHypothesis);
+    saveText.push("\nTHIRD REASONING:");
+    saveText.push(thirdReasoning);
+    saveText.push("-----------------------------------------");
+    //save their final hypothesis/reasoning
+    saveText.push("FINAL HYPOTHESIS:");
+    saveText.push(finalHypothesis);
+    saveText.push("\nFINAL REASONING:");
+    saveText.push(finalReasoning);
+    saveText.push("-----------------------------------------");
+    
+    //generate the .txt output and prompt the user to save the file
+    save(saveText, "emailLab.txt");
 }
