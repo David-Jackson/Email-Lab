@@ -67,6 +67,7 @@ function setup()
     let nameLabel = spawnLabel("Enter your name: ");
     let nameInput = createInput();
     nameInput.parent(nameLabel);
+    spawnLabel("(For groups, enter each member's name separated by commas.)");
     
     //create the submit button
     let nameButton = createButton("submit");
@@ -489,13 +490,13 @@ function saveSubmission()
     saveText.push("STUDENT NAME: " + username);
     //visual distinction between sections
     saveText.push("-----------------------------------------");
-    //save a list of the emails the student had access to
-    saveText.push("Here are the emails the student used:");
-    for (let i = 0; i < unlockedEmails.length; i++)
-    {
-        saveText.push(unlockedEmails[i].name);
-    }
-    saveText.push("-----------------------------------------");
+    //save a list of the emails the student had access to (temporarily disabled)
+    // saveText.push("Here are the emails the student used:");
+    // for (let i = 0; i < unlockedEmails.length; i++)
+    // {
+    //     saveText.push(unlockedEmails[i].name);
+    // }
+    // saveText.push("-----------------------------------------");
     //save their initial hypothesis/reasoning
     saveText.push("INITIAL HYPOTHESIS:");
     saveText.push(initialHypothesis);
