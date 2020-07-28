@@ -30,7 +30,7 @@ let submitButton; //button used to submit hypothesis & reasoning
 
 let alignGrid; //AlignmentGrid object used in the grid-based menu system
 
-let debugMode = true; //whether to run in debug mode
+let debugMode = false; //whether to run in debug mode
 
 //load assets
 function preload()
