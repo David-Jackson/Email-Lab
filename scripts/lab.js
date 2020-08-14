@@ -67,7 +67,10 @@ function setup()
     let nameLabel = spawnLabel("Enter your name: ");
     let nameInput = createInput();
     nameInput.parent(nameLabel);
-    spawnLabel("(For groups, enter each member's name separated by commas.)");
+    spawnLabel("(For groups, enter each member's name separated by commas.)"
+        + "<br> <br>This activity is a simulation designed to help you experience how science works when figuring out past events, and that it is built on evidence that can be observed or inferred from clues in the natural world. However, this evidence can sometimes be confusing, seemingly conflicting, and apparently random. Furthermore, each new bit of evidence often creates more questions than it answers. The Emails Lab shows how scientific explanations are only tentative explanations, because new discoveries may show that previous explanations were incorrect. It also shows that some explanations are better than others, because they more logically explain all the data."
+        + "<br> <br>No scientist works alone. This activity will demonstrate the value of collaboration within each group and with other groups in order to arrive at a reasonable explanation of the problem."
+    );
     
     //create the submit button
     let nameButton = createButton("submit");
@@ -286,12 +289,14 @@ function enterName(name, warningText)
             //create the email menu canvas
             spawnLabel("These are your currently unlocked emails."
                 + "<br>Double-lick on an image to view it full-size; double-click again to return to the normal menu view."
-                + "<br>Click & drag an email to move it to a different menu position, shifting any emails in the way.");
+                + "<br>Click & drag an email to move it to a different menu position, shifting any emails in the way."
+                + "<br>Scroll down when you're ready to enter your hypothesis.");
             let canvas = createCanvas(1030,470);
             canvas.parent("container");
             
             //create the input boxes for hypothesis & reasoning
-            hypoLabel = spawnLabel("Observe the information on the emails. Try to form a tentative hypothesis that explains the storyline represented by the emails. Enter this hypothesis in the box below.");
+            hypoLabel = spawnLabel("Observe the information on the emails. Think of the emails as clues to a series of connected events. Try to figure out a tentative storyline or hypothesis that explains the series of events represented by the emails."
+                + "<br>Enter this hypothesis in the box below.");
             hypoInputBox = spawnTextArea("","container",800,100);
             reasonLabel = spawnLabel("Using evidence from the emails, explain your reasoning behind the storyline you created.");
             reasonInputBox = spawnTextArea("","container",800,100);
@@ -353,8 +358,10 @@ function submitHypothesis()
                 chooseEmails(4);
 
                 //update the hypothesis/reasoning labels w/ the prompt for the 2nd hypothesis
-                hypoLabel.html("Using the new data from the 4 new emails, formulate a second tentative hypothesis that explains the storyline.");
-                reasonLabel.html("Explain your reasoning behind the storyline you created, including how you integrated new data into your hypothesis.")
+                hypoLabel.html("Using the new data from the 4 new emails, formulate a second tentative hypothesis that explains the storyline."
+                    + "<br>You can add this to your original hypothesis, edit your original hypothesis, or completely change it.");
+                reasonLabel.html("Explain your reasoning behind the storyline you created, including how you integrated new data into your hypothesis."
+                    + "<br>You can add this to your reasoning, edit it, or completely change it.")
 
                 //move to next state
                 state = states.UPDATED_HYPOTHESIS;
@@ -373,7 +380,8 @@ function submitHypothesis()
                 chooseEmails(2);
 
                 //update the hypothesis/reasoning labels w/ the prompt for the 3rd hypothesis
-                hypoLabel.html("Using the new data from the 2 new emails, formulate a third tentative hypothesis that explains the storyline.");
+                hypoLabel.html("Using the new data from the 2 new emails, formulate a third tentative hypothesis that explains the storyline."
+                    + "<br>You can add this to your original hypothesis, edit your original hypothesis, or completely change it.");
                 //reasonLabel.html("Explain your reasoning behind the storyline you created, including how you integrated new data into your hypothesis.")
 
                 //move to next state
@@ -397,7 +405,8 @@ function submitHypothesis()
                 hypoLabel.html("To simulate the collaborative nature of science, take a few minutes to meet with other groups to compare data."
                      + " Remember, since each group received emails at random, groups may have different data."
                      + "<br>When you've finished sharing, formulate a final hypothesis based upon all the available data."
-                     + " This hypothesis should attempt to explain the events in the life of the character(s) who wrote the emails.");
+                     + " This hypothesis should attempt to explain the events in the life of the character(s) who wrote the emails."
+                     + "<br>You can add this to your original hypothesis, edit your original hypothesis, or completely change it.");
                 //reasonLabel.html("Explain your reasoning behind the storyline you created, including how you integrated new data into your hypothesis.")
 
                 //move to next state
