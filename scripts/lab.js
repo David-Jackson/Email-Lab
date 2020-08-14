@@ -24,6 +24,7 @@ let dragStartPos; //if we're dragging an email around, this stores where it used
 let passedOrigin = false; //flag used to identify whether a push chain overrode the dragged email's original position. Part of a (hopefully) temporary workaround (see notes on PerformShift() in alignmentGrid.js).
 let doDragHighlighting = true; //whether to highlight the spot the student is going to drop an email into
 //global variables for input elements
+let inputDiv; //reference to the <div> parent used for all input boxes
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
 let hypoLabel, reasonLabel; //instructional text for hypothesis & reasoning boxes
 let submitButton; //button used to submit hypothesis & reasoning
@@ -295,16 +296,22 @@ function enterName(name, warningText)
             canvas.parent("container");
             
             //create the input boxes for hypothesis & reasoning
+            inputDiv = createDiv();
             hypoLabel = spawnLabel("Observe the information on the emails. Think of the emails as clues to a series of connected events. Try to figure out a tentative storyline or hypothesis that explains the series of events represented by the emails."
                 + "<br>Enter this hypothesis in the box below.");
+            hypoLabel.parent(inputDiv);
             hypoInputBox = spawnTextArea("","container",800,100);
+            hypoInputBox.parent(inputDiv);
             reasonLabel = spawnLabel("Using evidence from the emails, explain your reasoning behind the storyline you created.");
+            reasonLabel.parent(inputDiv);
             reasonInputBox = spawnTextArea("","container",800,100);
+            reasonInputBox.parent(inputDiv);
 
             //create the "submit" button
-            spawnLabel("Press the button below when you're ready to move to the next step.")
+            let buttonDiv = createDiv();
+            spawnLabel("Press the button below when you're ready to move to the next step.").parent(buttonDiv);
             submitButton = createButton("submit");
-            submitButton.parent("container");
+            submitButton.parent(buttonDiv);
             submitButton.mousePressed(submitHypothesis);
 
             //unlock the 1st four emails
