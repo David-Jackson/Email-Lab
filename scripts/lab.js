@@ -15,7 +15,8 @@ const states = {
     UPDATED_HYPOTHESIS: 2,  //unlock 4 more emails; form 2nd tentative hypothesis
     THIRD_HYPOTHESIS: 3,    //unlock 2 final emails; form 3rd tentative hypothesis
     FINAL_HYPOTHESIS: 4,    //meet w/ other groups to compare data; form a final hypothesis
-    END: 5                  //save user input & unlocked emails to PDF for assignment submission
+    QUESTIONS: 5,           //ask a series of followup/review questions
+    END: 6                  //save user input & unlocked emails to PDF for assignment submission
 };
 let state = states.SETUP; //tracks where we are in the lab
 let inZoomView = false; //whether or not we're currently zoomed in on an email
@@ -28,10 +29,25 @@ let inputDiv; //reference to the <div> parent used for all input boxes
 let hypoInputBox, reasonInputBox; //input boxes for hypothesis & reasoning
 let hypoLabel, reasonLabel; //instructional text for hypothesis & reasoning boxes
 let submitButton; //button used to submit hypothesis & reasoning
+let questionInputBoxes = []; //array of references to input boxes for the final questions
+let questionLabels = []; //array of references to the text of the final questions
 
 let alignGrid; //AlignmentGrid object used in the grid-based menu system
 
 let debugMode = false; //whether to run in debug mode
+
+let qText = [ //array of the post-lab questions' text so I can spawn the question boxes via for loop
+    "<b>1.</b> In this activity, you didn't get all of the data (the emails) at the same time.  How is this similar to how scientists work in the \'real world?\'",
+    "<b>2.</b> As you got access to more emails, explain how that affected your hypothesis.  Include in your answer how it changed how confident you were in your hypothesis.",
+    "<b>3.</b> In this activity, when you compared your results with another group, you may have found that they gotten some emails you didn't get.  Thinking about your answer to the previous questions, how is this like how science works?",
+    "<b>4.</b> When you talked to the other group, was their storyline hypothesis identical to yours or different?  Why do you think this is?",
+    "<b>5.</b> After collaboration, did you and the other group agree on a final hypothesis?  Why/why not?  How is this like \'real science?\'",
+    "<b>6.</b> Sometimes in the news you'll see reports about a new experiment.  Pretend you read about a study of Food A that found 20 people on average were 45% healthier.  Another study of Food B used 10,000 people and found on average they were 25% healthier.  Based on what you've learned, which food would you be more confident in its health effects and why?",
+    "<b>7.</b> Why do we say an explanation in science is \"tentative?\"",
+    "<b>8.</b> Is your final hypothesis \"correct\"? Explain.",
+    "<b>9.</b> Scientists sometimes use the term \"theory\" to describe their explanations, other times the term \"hypothesis.\"  What's the difference, and what would you need to turn your hypothesis into a theory?"
+]
+
 
 //load assets
 function preload()
@@ -58,6 +74,7 @@ function setup()
     for (let i = 0; i < 16; i++)
     {
         let name = "email_" + (i+1);
+        //constructor(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH,name)
         emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450,name));
     }
 
@@ -289,7 +306,7 @@ function enterName(name, warningText)
             state = states.INITIAL_HYPOTHESIS;
             //create the email menu canvas
             spawnLabel("These are your currently unlocked emails."
-                + "<br>Double-lick on an image to view it full-size; double-click again to return to the normal menu view."
+                + "<br>Double-click on an image to read the full email; double-click again to return to the normal menu view."
                 + "<br>Click & drag an email to move it to a different menu position, shifting any emails in the way."
                 + "<br>Scroll down when you're ready to enter your hypothesis.");
             let canvas = createCanvas(1030,470);
@@ -423,12 +440,35 @@ function submitHypothesis()
         case states.FINAL_HYPOTHESIS: //entered 4th & final hypothesis after sharing w/ another group
             if(checkHypothesis(thirdHypothesis, thirdReasoning)) //confirm hypothesis/reasoning was entered & updated
             {
-                console.log("Saved final hypothesis; time to print to PDF");
+                console.log("Saved final hypothesis; time to begin questions");
                 //save the new hypothesis/reasoning
                 finalHypothesis = hypoInputBox.value();
                 finalReasoning = reasonInputBox.value();
                 console.log(finalHypothesis);
                 console.log(finalReasoning);
+                
+                //Disable the old hypothesis/reasoning fields
+                hypoInputBox.remove();
+                hypoLabel.remove();
+                reasonInputBox.remove();
+                reasonLabel.remove();
+
+                //Display the final questions
+                for (let i = 0; i < 9; i++)
+                {
+                    questionLabels[i] = spawnLabel(qText[i],inputDiv);
+                    questionInputBoxes[i] = spawnTextArea("",inputDiv,800,100);
+                }
+
+                //move to next state
+                state = states.QUESTIONS;
+            }
+            break;
+        case states.QUESTIONS:
+            //verify that the user answered all questions
+            if (checkAnswers())
+            {
+                console.log("Saved answers, time to print to PDF");
                 
                 //save to PDF
                 saveSubmission();
@@ -470,6 +510,40 @@ function checkHypothesis(previousHypothesis, previousReasoning)
     else
     {
         return true;
+    }
+}
+
+//Performs a simple error-check of all question answers
+//(specifically, checks that no question is blank).
+//Returns true if all questions were answered;
+//otherwise, returns false and tells the user which ones they missed.
+function checkAnswers()
+{
+    let success = true; //assume user answered them all
+    let alertMsg = "Missing answers to questions: "; //text of the alert message if unanswered questions are detected
+    for (let i = 0; i < questionInputBoxes.length; i++)
+    {
+        if (questionInputBoxes[i].value() == "") //unanswered question
+        {
+            if (success) //if this is the 1st unanswered question detected...
+            {
+                success = false; //log the failure
+                alertMsg += ("" + (i+1)); //add the 1st unanswered question number 
+            }
+            else //this isn't the first missing answer we've found
+            {
+                alertMsg += (", " + (i+1)); //add the next number, separating by commas
+            }
+        }
+    }
+    if (success) //no missing answers found
+    {
+        return true;
+    }
+    else //missing answer detected
+    {
+        alert(alertMsg);
+        return false;
     }
 }
 
@@ -536,6 +610,14 @@ function saveSubmission()
     saveText.push(finalHypothesis);
     saveText.push("\nFINAL REASONING:");
     saveText.push(finalReasoning);
+    saveText.push("-----------------------------------------");
+    //save their answers to the questions
+    saveText.push("POST-LAB QUESTIONS:");
+    for (let i = 0; i < questionInputBoxes.length; i++)
+    {
+        saveText.push(qText[i]);
+        saveText.push(questionInputBoxes[i].value() + "\n");
+    }
     saveText.push("-----------------------------------------");
     
     //generate the .txt output and prompt the user to save the file
