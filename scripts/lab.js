@@ -1,5 +1,6 @@
 //All the global variables...
 let images = []; //array to store email images
+let thumbnails = []; //array to store email thumbnails
 let emailPool = []; //array to store locked ("in the envelope") emails to draw from
 let unlockedEmails = []; //array to store unlocked emails
 //global variables for user input
@@ -59,10 +60,12 @@ function preload()
         if (debugMode)
         {
             images.push(loadImage("debugAssets/Slide" + i + ".PNG"));
+            thumbnails.push(loadImage("debugAssets/Slide" + i + ".PNG"));
         }
         else
         {
             images.push(loadImage("assets/Slide" + i + ".PNG"));
+            thumbnails.push(loadImage("assets/thumbnails/Slide" + i + ".PNG"));
         }
     }
 }
@@ -75,7 +78,7 @@ function setup()
     {
         let name = "email_" + (i+1);
         //constructor(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH,name)
-        emailPool.push(new Email(images[i],0,0,200,150,215,10,600,450,name));
+        emailPool.push(new Email(images[i],thumbnails[i],0,0,200,150,215,10,600,450,name));
     }
 
     //set up alignGrid

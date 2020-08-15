@@ -1,9 +1,10 @@
 class Email
 {
-    constructor(img,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH,name)
+    constructor(img,thumb,menuX,menuY,menuW,menuH,zoomX,zoomY,zoomW,zoomH,name)
     {
-        //what email image to use as its sprite
+        //what email image to use as its sprite & thumbnail
         this.image = img;
+        this.thumbnail = thumb;
 
         //dimension & position of the email in menu view
         this.menuPos = {x: menuX, y: menuY}; //refers to top left corner
@@ -33,12 +34,12 @@ class Email
         else if (this.dragging)
         {
             //draw in menu mode, but following the mouse
-            image(this.image, mouseX - this.dragOffset.x, mouseY - this.dragOffset.y, this.menuScale.width, this.menuScale.height);
+            image(this.thumbnail, mouseX - this.dragOffset.x, mouseY - this.dragOffset.y, this.menuScale.width, this.menuScale.height);
         }
         else
         {
             //draw small menu form
-            image(this.image, this.menuPos.x, this.menuPos.y, this.menuScale.width, this.menuScale.height);
+            image(this.thumbnail, this.menuPos.x, this.menuPos.y, this.menuScale.width, this.menuScale.height);
         }
     }
 
