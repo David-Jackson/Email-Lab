@@ -577,12 +577,12 @@ function chooseEmails(count)
 function saveSubmission()
 {
     //saveText stores the output text, letting us build it as we go.
-    let saveText = [];
+    let saveText = "";
 
     //save the student's name
-    saveText.push("STUDENT NAME: " + username);
+    saveText += ("<b>STUDENT NAME:</b> " + username + "<br>");
     //visual distinction between sections
-    saveText.push("-----------------------------------------");
+    saveText += ("-----------------------------------------<br>");
     //save a list of the emails the student had access to (temporarily disabled)
     // saveText.push("Here are the emails the student used:");
     // for (let i = 0; i < unlockedEmails.length; i++)
@@ -591,38 +591,48 @@ function saveSubmission()
     // }
     // saveText.push("-----------------------------------------");
     //save their initial hypothesis/reasoning
-    saveText.push("INITIAL HYPOTHESIS:");
-    saveText.push(initialHypothesis);
-    saveText.push("\nINITIAL REASONING:");
-    saveText.push(initialReasoning);
-    saveText.push("-----------------------------------------");
+    saveText += ("<b>INITIAL HYPOTHESIS:</b> ");
+    saveText += (initialHypothesis + "<br>");
+    saveText += ("<b>INITIAL REASONING:</b> ");
+    saveText += (initialReasoning + "<br>");
+    saveText += ("-----------------------------------------<br>");
     //save their second hypothesis/reasoning
-    saveText.push("SECOND HYPOTHESIS:");
-    saveText.push(updatedHypothesis);
-    saveText.push("\nSECOND REASONING:");
-    saveText.push(updatedReasoning);
-    saveText.push("-----------------------------------------");
+    saveText += ("<b>SECOND HYPOTHESIS:</b> ");
+    saveText += (updatedHypothesis + "<br>");
+    saveText += ("<b>SECOND REASONING:</b> ");
+    saveText += (updatedReasoning + "<br>");
+    saveText += ("-----------------------------------------<br>");
     //save their third hypothesis/reasoning
-    saveText.push("THIRD HYPOTHESIS:");
-    saveText.push(thirdHypothesis);
-    saveText.push("\nTHIRD REASONING:");
-    saveText.push(thirdReasoning);
-    saveText.push("-----------------------------------------");
+    saveText += ("<b>THIRD HYPOTHESIS:</b> ");
+    saveText += (thirdHypothesis + "<br>");
+    saveText += ("<b>THIRD REASONING:</b> ");
+    saveText += (thirdReasoning + "<br>");
+    saveText += ("-----------------------------------------<br>");
     //save their final hypothesis/reasoning
-    saveText.push("FINAL HYPOTHESIS:");
-    saveText.push(finalHypothesis);
-    saveText.push("\nFINAL REASONING:");
-    saveText.push(finalReasoning);
-    saveText.push("-----------------------------------------");
+    saveText += ("<b>FINAL HYPOTHESIS:</b> ");
+    saveText += (finalHypothesis + "<br>");
+    saveText += ("<b>FINAL REASONING:</b> ");
+    saveText += (finalReasoning + "<br>");
+    saveText += ("-----------------------------------------<br>");
     //save their answers to the questions
-    saveText.push("POST-LAB QUESTIONS:");
+    saveText += ("<b>POST-LAB QUESTIONS:</b><br>");
     for (let i = 0; i < questionInputBoxes.length; i++)
     {
-        saveText.push(qText[i]);
-        saveText.push(questionInputBoxes[i].value() + "\n");
+        saveText += ("<b>" + qText[i] + "</b><br>");
+        saveText += (questionInputBoxes[i].value() + "<br> <br>");
     }
-    saveText.push("-----------------------------------------");
+    saveText += ("-----------------------------------------<br>");
     
-    //generate the .txt output and prompt the user to save the file
-    save(saveText, "emailLab.txt");
+    //generate the PDF output and prompt the user to save the file
+    //because of how html2PDF works, we need to create a "dummy" HTML element to store the output text
+    let saveElement = createP(saveText);
+    saveElement.id("Output"); //set it's ID so we can find it later. No, we can't just pass saveElement directly because a p5.js element != HTML element
+    var opt = { //html2pdf options
+        margin: 1,                          //1-inch margins
+        filename: "EmailLab.pdf",           //name of output file
+        pagebreak: { mode: "avoid-all" },   //if the ouput covers multiple pages, this'll make sure it behaves properly (i.e. doesn't split through the midle of a line of text)
+        jsPDF: { unit: "in" }               //set that "margin: 1" to use inches as the unit
+    };
+    console.log(html2pdf().set(opt).from(document.getElementById("Output")).save());
+    console.log("DONE");
 }
