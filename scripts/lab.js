@@ -47,9 +47,12 @@ function setup() {
   //set up alignGrid
   alignGrid = new AlignmentGrid(3,5);
   
-  createCanvas(1030, 470);
+  
   var submitButton = createButton("Draw First Four Emails");
   submitButton.mousePressed(drawFirstFour);
+  createP();
+    
+  createCanvas(1030, 470);
 }
 
 function resetRandomSeed() {
