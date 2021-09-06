@@ -83,25 +83,6 @@ function setup()
 
     //set up alignGrid
     alignGrid = new AlignmentGrid(3,5);
-    
-    //create the username box
-    let nameLabel = spawnLabel("Enter your name: ");
-    let nameInput = createInput();
-    nameInput.parent(nameLabel);
-    spawnLabel("(For groups, enter each member's name separated by commas.)"
-        + "<br> <br>This activity is a simulation designed to help you experience how science works when figuring out past events, and that it is built on evidence that can be observed or inferred from clues in the natural world. However, this evidence can sometimes be confusing, seemingly conflicting, and apparently random. Furthermore, each new bit of evidence often creates more questions than it answers. The Emails Lab shows how scientific explanations are only tentative explanations, because new discoveries may show that previous explanations were incorrect. It also shows that some explanations are better than others, because they more logically explain all the data."
-        + "<br> <br>No scientist works alone. This activity will demonstrate the value of collaboration within each group and with other groups in order to arrive at a reasonable explanation of the problem."
-    );
-    
-    //create the submit button
-    let nameButton = createButton("submit");
-    nameButton.parent(nameLabel);
-    nameButton.position(nameInput.x + nameInput.width, nameInput.y);
-    let warnText = createP(); //text object to display warnings for invalid name input
-    warnText.parent(nameButton);
-    warnText.position(nameButton.width, -nameButton.height-5); //position the warning text next to the button. Gotta use a magic number to center it vertically because apparently warningText's height is 0 or something
-    warnText.size(210); //make warnText large enough it won't try to wrap itself. More magic numbers (naughty!), but for the life of me I couldn't derive a size programatically so screw it.
-    nameButton.mousePressed(() => {enterName(nameInput.value(), warnText);});
 }
 
 function draw()
